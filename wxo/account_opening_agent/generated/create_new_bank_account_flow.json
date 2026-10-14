@@ -1,0 +1,1365 @@
+{
+  "spec": {
+    "kind": "flow",
+    "name": "create_new_bank_account_agentic_workflow",
+    "display_name": "Create New Bank Account Agentic Workflow",
+    "description": "Creates a request to open a new bank account. The user is asked to upload a picture of their passport.",
+    "input_schema": {
+      "$ref": "#/schemas/create_new_bank_account_agentic_workflow_input"
+    },
+    "output_schema": {
+      "$ref": "#/schemas/AccountRequestOutput"
+    },
+    "private_schema": {
+      "$ref": "#/schemas/PrivateVars"
+    },
+    "schedulable": false,
+    "suppress_agent_summarization": true
+  },
+  "nodes": {
+    "extract_passport_details": {
+      "spec": {
+        "kind": "docext",
+        "name": "extract_passport_details",
+        "display_name": "Extract Passport Details",
+        "description": "Extracts the holder's details from a passport image.",
+        "input_schema": {
+          "$ref": "#/schemas/extract_passport_details_input"
+        },
+        "output_schema": {
+          "$ref": "#/schemas/DocExtFieldValue"
+        },
+        "task": "custom_field_extraction",
+        "enable_hw": false,
+        "version": "TIP",
+        "config": {
+          "domain": "other",
+          "type": "agreement",
+          "llm": "watsonx/openai/gpt-oss-120b",
+          "fields": [
+            {
+              "name": "Passport number",
+              "type": "string",
+              "description": "The passport number, usually printed at the top right of the data page.",
+              "field_name": "passport_number",
+              "multiple_mentions": false,
+              "example_value": "",
+              "examples": [],
+              "available_options": null
+            },
+            {
+              "name": "Nationality",
+              "type": "string",
+              "description": "Find the value in the field labeled Nationality and return the corresponding country name in English, for example Portuguese gives Portugal, Polish gives Poland, Spanish or Espa\u00f1ola gives Spain.",
+              "field_name": "nationality",
+              "multiple_mentions": false,
+              "example_value": "",
+              "examples": [],
+              "available_options": null
+            },
+            {
+              "name": "Given name",
+              "type": "string",
+              "description": "The given name(s) of the holder.",
+              "field_name": "given_name",
+              "multiple_mentions": false,
+              "example_value": "",
+              "examples": [],
+              "available_options": null
+            },
+            {
+              "name": "Surname",
+              "type": "string",
+              "description": "The surname(s) of the holder.",
+              "field_name": "surname",
+              "multiple_mentions": false,
+              "example_value": "",
+              "examples": [],
+              "available_options": null
+            },
+            {
+              "name": "Date of birth",
+              "type": "string",
+              "description": "The holder's date of birth. The label may be multilingual (e.g. 'Date of birth', 'Fecha de nacimiento', 'Date de naissance'). Never use the date of issue or the date of expiry. Return it as DD MMM YYYY, for example 08 AUG 1988.",
+              "field_name": "date_of_birth",
+              "multiple_mentions": false,
+              "example_value": "",
+              "examples": [],
+              "available_options": null
+            }
+          ],
+          "field_extraction_method": "classic",
+          "page_range": null
+        },
+        "min_confidence": 0.0,
+        "review_fields": [],
+        "enable_review": false
+      },
+      "input_map": {
+        "spec": {
+          "maps": [
+            {
+              "target_variable": "self.input.document_ref",
+              "value_expression": "flow.input.document_ref",
+              "has_no_value": false,
+              "default_value": null,
+              "metadata": {
+                "assignmentType": "pyExpression"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "not_supported": {
+      "spec": {
+        "kind": "user_flow",
+        "name": "not_supported",
+        "display_name": "Other nationalities",
+        "initiators": [
+          "__any_user__"
+        ],
+        "schedulable": false,
+        "label": "Account opening",
+        "owners": [
+          "__any_user__"
+        ],
+        "assignment_policy": "initiator"
+      },
+      "nodes": {
+        "not_supported_message": {
+          "spec": {
+            "kind": "user",
+            "name": "not_supported_message",
+            "display_name": "not_supported_message",
+            "owners": [
+              "__current_user__"
+            ],
+            "fields": [
+              {
+                "name": "not_supported_message",
+                "kind": "text",
+                "text": "Sorry, online account opening is currently available only for Spanish nationals. Please visit one of our branches to open your account.",
+                "direction": "output",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "in_field": null
+                },
+                "uiSchema": {
+                  "ui:widget": "DataWidget",
+                  "ui:options": {
+                    "label": false
+                  }
+                },
+                "jsonSchema": {
+                  "type": "object",
+                  "required": [],
+                  "properties": {
+                    "not_supported_message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "spec_version": "2.0"
+              }
+            ]
+          }
+        },
+        "__start__": {
+          "spec": {
+            "kind": "start",
+            "name": "__start__",
+            "display_name": "__start__"
+          }
+        },
+        "__end__": {
+          "spec": {
+            "kind": "end",
+            "name": "__end__",
+            "display_name": "__end__"
+          }
+        }
+      },
+      "edges": [
+        {
+          "start": "__start__",
+          "end": "not_supported_message"
+        },
+        {
+          "start": "not_supported_message",
+          "end": "__end__"
+        }
+      ],
+      "schemas": {},
+      "metadata": {}
+    },
+    "store_not_supported": {
+      "spec": {
+        "kind": "script",
+        "name": "store_not_supported",
+        "display_name": "Store Not Supported",
+        "fn": "flow.private.confirmation_message = 'Sorry, online account opening is currently available only for Spanish nationals. Please visit one of our branches to open your account.'"
+      }
+    },
+    "account_creation_request": {
+      "spec": {
+        "kind": "user_flow",
+        "name": "account_creation_request",
+        "display_name": "Account Creation Request",
+        "initiators": [
+          "__any_user__"
+        ],
+        "schedulable": false,
+        "label": "Account Creation Request",
+        "owners": [
+          "__any_user__"
+        ],
+        "assignment_policy": "initiator"
+      },
+      "nodes": {
+        "account_details": {
+          "spec": {
+            "kind": "user",
+            "name": "account_details",
+            "display_name": "Account Details",
+            "description": "Check the details extracted from your passport and complete the form.",
+            "owners": [
+              "__current_user__"
+            ],
+            "fields": [],
+            "form": {
+              "name": "account_details",
+              "kind": "form",
+              "display_name": "Account Details",
+              "fields": [
+                {
+                  "name": "first_name",
+                  "kind": "text",
+                  "direction": "input",
+                  "display_name": "First Name",
+                  "input_map": {
+                    "spec": {
+                      "maps": [
+                        {
+                          "target_variable": "self.input.default",
+                          "value_expression": "flow[\"extract_passport_details\"].output.given_name",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  },
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "TextWidget",
+                    "ui:title": "First Name"
+                  },
+                  "regex_error_msg": "Input does not match the required pattern"
+                },
+                {
+                  "name": "last_name",
+                  "kind": "text",
+                  "direction": "input",
+                  "display_name": "Last Name",
+                  "input_map": {
+                    "spec": {
+                      "maps": [
+                        {
+                          "target_variable": "self.input.default",
+                          "value_expression": "flow[\"extract_passport_details\"].output.surname",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  },
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "TextWidget",
+                    "ui:title": "Last Name"
+                  },
+                  "regex_error_msg": "Input does not match the required pattern"
+                },
+                {
+                  "name": "nationality",
+                  "kind": "text",
+                  "direction": "input",
+                  "display_name": "Nationality",
+                  "input_map": {
+                    "spec": {
+                      "maps": [
+                        {
+                          "target_variable": "self.input.default",
+                          "value_expression": "flow[\"extract_passport_details\"].output.nationality",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  },
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "TextWidget",
+                    "ui:title": "Nationality"
+                  },
+                  "regex_error_msg": "Input does not match the required pattern"
+                },
+                {
+                  "name": "passport_number",
+                  "kind": "text",
+                  "direction": "input",
+                  "display_name": "Passport Number",
+                  "input_map": {
+                    "spec": {
+                      "maps": [
+                        {
+                          "target_variable": "self.input.default",
+                          "value_expression": "flow[\"extract_passport_details\"].output.passport_number",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  },
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "TextWidget",
+                    "ui:title": "Passport Number"
+                  },
+                  "regex_error_msg": "Input does not match the required pattern"
+                },
+                {
+                  "name": "date_of_birth",
+                  "kind": "text",
+                  "direction": "input",
+                  "display_name": "Date of Birth",
+                  "input_map": {
+                    "spec": {
+                      "maps": [
+                        {
+                          "target_variable": "self.input.default",
+                          "value_expression": "flow[\"extract_passport_details\"].output.date_of_birth",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  },
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "TextWidget",
+                    "ui:title": "Date of Birth"
+                  },
+                  "regex_error_msg": "Input does not match the required pattern"
+                },
+                {
+                  "name": "phone_number",
+                  "kind": "text",
+                  "direction": "input",
+                  "display_name": "Contact Phone Number",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "TextWidget",
+                    "ui:title": "Contact Phone Number"
+                  },
+                  "regex_error_msg": "Input does not match the required pattern"
+                },
+                {
+                  "name": "annual_income",
+                  "kind": "number",
+                  "direction": "input",
+                  "display_name": "Annual Income",
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "default": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "NumberWidget",
+                    "ui:title": "Annual Income"
+                  }
+                },
+                {
+                  "name": "account_type",
+                  "kind": "any",
+                  "direction": "input",
+                  "display_name": "Account Type",
+                  "input_map": {
+                    "spec": {
+                      "maps": [
+                        {
+                          "target_variable": "self.input.choices",
+                          "value_expression": "[\"Current\", \"Saving\"]",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        },
+                        {
+                          "target_variable": "self.input.display_items",
+                          "value_expression": "[]",
+                          "has_no_value": false,
+                          "default_value": null,
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  },
+                  "input_schema": {
+                    "type": "object",
+                    "properties": {
+                      "choices": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "display_items": {
+                        "type": "array",
+                        "items": {}
+                      },
+                      "display_text": {
+                        "type": "string"
+                      },
+                      "default": {}
+                    },
+                    "required": [
+                      "choices"
+                    ],
+                    "in_field": null
+                  },
+                  "output_schema": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "in_field": null
+                  },
+                  "uiSchema": {
+                    "ui:widget": "ComboboxWidget",
+                    "ui:placeholder": null,
+                    "ui:title": "Account Type"
+                  }
+                }
+              ],
+              "jsonSchema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "title": "First Name"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "title": "Last Name"
+                  },
+                  "nationality": {
+                    "type": "string",
+                    "title": "Nationality"
+                  },
+                  "passport_number": {
+                    "type": "string",
+                    "title": "Passport Number"
+                  },
+                  "date_of_birth": {
+                    "type": "string",
+                    "title": "Date of Birth"
+                  },
+                  "phone_number": {
+                    "type": "string",
+                    "title": "Contact Phone Number"
+                  },
+                  "annual_income": {
+                    "type": "number",
+                    "title": "Annual Income"
+                  },
+                  "account_type": {
+                    "title": "Account Type"
+                  }
+                },
+                "required": [
+                  "first_name",
+                  "last_name",
+                  "nationality",
+                  "passport_number",
+                  "date_of_birth",
+                  "phone_number",
+                  "annual_income",
+                  "account_type"
+                ]
+              },
+              "buttons": [
+                {
+                  "name": "submit",
+                  "kind": "submit",
+                  "display_name": "Submit",
+                  "visible": true
+                },
+                {
+                  "name": "cancel",
+                  "kind": "cancel",
+                  "display_name": "Cancel",
+                  "visible": false
+                }
+              ]
+            }
+          }
+        },
+        "__start__": {
+          "spec": {
+            "kind": "start",
+            "name": "__start__",
+            "display_name": "__start__"
+          }
+        },
+        "__end__": {
+          "spec": {
+            "kind": "end",
+            "name": "__end__",
+            "display_name": "__end__"
+          }
+        }
+      },
+      "edges": [
+        {
+          "start": "__start__",
+          "end": "account_details"
+        },
+        {
+          "start": "account_details",
+          "end": "__end__"
+        }
+      ],
+      "schemas": {},
+      "metadata": {}
+    },
+    "generate_confirmation": {
+      "spec": {
+        "kind": "prompt",
+        "name": "generate_confirmation",
+        "display_name": "Generate Confirmation",
+        "input_schema": {
+          "$ref": "#/schemas/generate_confirmation_input"
+        },
+        "output_schema": {
+          "$ref": "#/schemas/ConfirmationOutput"
+        },
+        "system_prompt": "You are a friendly bank assistant who writes short, professional confirmation messages.",
+        "user_prompt": [
+          "Write a short confirmation message for a new bank account request.",
+          "Customer: {first_name} {last_name}",
+          "Account type: {account_type}",
+          "Phone number: {phone_number}",
+          "The message must include: a personal greeting, a statement that the request was successfully submitted, a reference number, a note that an agent will call the customer at the phone number provided, and a sign-off from the bank."
+        ],
+        "llm": "watsonx/ibm/granite-4-h-small",
+        "include_agent_context": false
+      },
+      "input_map": {
+        "spec": {
+          "maps": [
+            {
+              "target_variable": "self.input.first_name",
+              "value_expression": "flow[\"account_creation_request\"][\"account_details\"].output.first_name",
+              "has_no_value": false,
+              "default_value": null,
+              "metadata": {
+                "assignmentType": "pyExpression"
+              }
+            },
+            {
+              "target_variable": "self.input.last_name",
+              "value_expression": "flow[\"account_creation_request\"][\"account_details\"].output.last_name",
+              "has_no_value": false,
+              "default_value": null,
+              "metadata": {
+                "assignmentType": "pyExpression"
+              }
+            },
+            {
+              "target_variable": "self.input.account_type",
+              "value_expression": "flow[\"account_creation_request\"][\"account_details\"].output.account_type",
+              "has_no_value": false,
+              "default_value": null,
+              "metadata": {
+                "assignmentType": "pyExpression"
+              }
+            },
+            {
+              "target_variable": "self.input.phone_number",
+              "value_expression": "flow[\"account_creation_request\"][\"account_details\"].output.phone_number",
+              "has_no_value": false,
+              "default_value": null,
+              "metadata": {
+                "assignmentType": "pyExpression"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "store_confirmation": {
+      "spec": {
+        "kind": "script",
+        "name": "store_confirmation",
+        "display_name": "Store Confirmation",
+        "fn": "flow.private.confirmation_message = flow.nodes['generate_confirmation'].output.message"
+      }
+    },
+    "show_confirmation": {
+      "spec": {
+        "kind": "user_flow",
+        "name": "show_confirmation",
+        "display_name": "Confirmation",
+        "initiators": [
+          "__any_user__"
+        ],
+        "schedulable": false,
+        "label": "Account Creation Request",
+        "owners": [
+          "__any_user__"
+        ],
+        "assignment_policy": "initiator"
+      },
+      "nodes": {
+        "confirmation_message": {
+          "spec": {
+            "kind": "user",
+            "name": "confirmation_message",
+            "display_name": "confirmation_message",
+            "owners": [
+              "__current_user__"
+            ],
+            "fields": [
+              {
+                "name": "confirmation_message",
+                "kind": "text",
+                "text": "{flow.private.confirmation_message}",
+                "direction": "output",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "in_field": null
+                },
+                "uiSchema": {
+                  "ui:widget": "DataWidget",
+                  "ui:options": {
+                    "label": false
+                  }
+                },
+                "jsonSchema": {
+                  "type": "object",
+                  "required": [],
+                  "properties": {
+                    "confirmation_message": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "spec_version": "2.0"
+              }
+            ]
+          }
+        },
+        "__start__": {
+          "spec": {
+            "kind": "start",
+            "name": "__start__",
+            "display_name": "__start__"
+          }
+        },
+        "__end__": {
+          "spec": {
+            "kind": "end",
+            "name": "__end__",
+            "display_name": "__end__"
+          }
+        }
+      },
+      "edges": [
+        {
+          "start": "__start__",
+          "end": "confirmation_message"
+        },
+        {
+          "start": "confirmation_message",
+          "end": "__end__"
+        }
+      ],
+      "schemas": {},
+      "metadata": {}
+    },
+    "nationality_check": {
+      "spec": {
+        "kind": "branch",
+        "name": "nationality_check",
+        "display_name": "Nationality?",
+        "evaluator": {
+          "conditions": [
+            {
+              "expression": "str(flow[\"extract_passport_details\"].output.nationality).strip().lower() in ['spain', 'spanish', 'espa\u00f1a', 'espana', 'espa\u00f1ola', 'espanola', 'esp']",
+              "node_id": "account_creation_request",
+              "default": false
+            },
+            {
+              "node_id": "not_supported",
+              "default": true
+            }
+          ]
+        },
+        "cases": {},
+        "match_policy": "FIRST_MATCH"
+      }
+    },
+    "__start__": {
+      "spec": {
+        "kind": "start",
+        "name": "__start__",
+        "display_name": "__start__"
+      }
+    },
+    "__end__": {
+      "spec": {
+        "kind": "end",
+        "name": "__end__",
+        "display_name": "__end__"
+      }
+    }
+  },
+  "edges": [
+    {
+      "start": "nationality_check",
+      "end": "account_creation_request"
+    },
+    {
+      "start": "nationality_check",
+      "end": "not_supported"
+    },
+    {
+      "start": "__start__",
+      "end": "extract_passport_details"
+    },
+    {
+      "start": "extract_passport_details",
+      "end": "nationality_check"
+    },
+    {
+      "start": "account_creation_request",
+      "end": "generate_confirmation"
+    },
+    {
+      "start": "generate_confirmation",
+      "end": "store_confirmation"
+    },
+    {
+      "start": "store_confirmation",
+      "end": "show_confirmation"
+    },
+    {
+      "start": "show_confirmation",
+      "end": "__end__"
+    },
+    {
+      "start": "not_supported",
+      "end": "store_not_supported"
+    },
+    {
+      "start": "store_not_supported",
+      "end": "__end__"
+    }
+  ],
+  "schemas": {
+    "create_new_bank_account_agentic_workflow_input": {
+      "type": "object",
+      "title": "create_new_bank_account_agentic_workflow_input",
+      "required": [],
+      "properties": {
+        "document_ref": {
+          "title": "Document reference",
+          "description": "Either an ID or a URL identifying the document to be used.",
+          "format": "binary",
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "binary"
+            },
+            {
+              "type": "string",
+              "title": "File reference",
+              "description": "A URL identifying the File to be used.",
+              "format": "wxo-file"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page_range": {
+          "description": "Optional page range for text extraction and layout document extraction. When specified, only text or fields from pages within the specified range are extracted.",
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "PageRange",
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "type": "integer",
+                  "title": "Start",
+                  "description": "The starting page number (1-based, inclusive)"
+                },
+                "end": {
+                  "type": "integer",
+                  "title": "End",
+                  "description": "The ending page number (1-based, inclusive)"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "language": {
+          "description": "Optional ISO-639 language code for document processing. Overrides the language set in the node spec when provided.",
+          "anyOf": [
+            {
+              "type": "string",
+              "title": "LanguageCode",
+              "description": "The ISO-639 language codes understood by Document Processing functions.\nHandwritten variants are only supported for English and German.",
+              "enum": [
+                "af",
+                "sq",
+                "ay",
+                "eu",
+                "bi",
+                "ca",
+                "cr",
+                "en",
+                "et",
+                "fj",
+                "fil",
+                "fr",
+                "gl",
+                "ga",
+                "ht",
+                "id",
+                "jv",
+                "kl",
+                "rw",
+                "kg",
+                "kj",
+                "la",
+                "mg",
+                "gv",
+                "ng",
+                "nd",
+                "oc",
+                "oj",
+                "pl",
+                "qu",
+                "rm",
+                "rn",
+                "sg",
+                "sn",
+                "su",
+                "sw",
+                "ss",
+                "ts",
+                "tn",
+                "xh",
+                "zu",
+                "bn",
+                "da",
+                "nl",
+                "fi",
+                "de",
+                "el",
+                "he",
+                "it",
+                "no",
+                "pt",
+                "es",
+                "sv",
+                "tr",
+                "vi",
+                "zh_cn",
+                "zh_tw",
+                "ja",
+                "ko",
+                "be",
+                "bg",
+                "mk",
+                "mn",
+                "ru",
+                "sr",
+                "uk",
+                "hi",
+                "mr",
+                "ne",
+                "sa",
+                "ta",
+                "te",
+                "th",
+                "en_hw",
+                "de_hw"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "AccountRequestOutput": {
+      "type": "object",
+      "title": "AccountRequestOutput",
+      "required": [],
+      "properties": {
+        "confirmation_message": {
+          "type": "string",
+          "title": "Confirmation Message",
+          "description": "Message shown to the user at the end of the workflow.",
+          "default": ""
+        }
+      }
+    },
+    "PrivateVars": {
+      "type": "object",
+      "title": "PrivateVars",
+      "required": [],
+      "properties": {
+        "confirmation_message": {
+          "type": "string",
+          "title": "Confirmation Message",
+          "description": "Confirmation message generated by the prompt node.",
+          "default": ""
+        }
+      }
+    },
+    "extract_passport_details_input": {
+      "type": "object",
+      "title": "extract_passport_details_input",
+      "required": [],
+      "properties": {
+        "document_ref": {
+          "title": "Document reference",
+          "description": "Either an ID or a URL identifying the document to be used.",
+          "format": "binary",
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "binary"
+            },
+            {
+              "type": "string",
+              "title": "File reference",
+              "description": "A URL identifying the File to be used.",
+              "format": "wxo-file"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page_range": {
+          "description": "Optional page range for text extraction and layout document extraction. When specified, only text or fields from pages within the specified range are extracted.",
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "PageRange",
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "type": "integer",
+                  "title": "Start",
+                  "description": "The starting page number (1-based, inclusive)"
+                },
+                "end": {
+                  "type": "integer",
+                  "title": "End",
+                  "description": "The ending page number (1-based, inclusive)"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "language": {
+          "description": "Optional ISO-639 language code for document processing. Overrides the language set in the node spec when provided.",
+          "anyOf": [
+            {
+              "type": "string",
+              "title": "LanguageCode",
+              "description": "The ISO-639 language codes understood by Document Processing functions.\nHandwritten variants are only supported for English and German.",
+              "enum": [
+                "af",
+                "sq",
+                "ay",
+                "eu",
+                "bi",
+                "ca",
+                "cr",
+                "en",
+                "et",
+                "fj",
+                "fil",
+                "fr",
+                "gl",
+                "ga",
+                "ht",
+                "id",
+                "jv",
+                "kl",
+                "rw",
+                "kg",
+                "kj",
+                "la",
+                "mg",
+                "gv",
+                "ng",
+                "nd",
+                "oc",
+                "oj",
+                "pl",
+                "qu",
+                "rm",
+                "rn",
+                "sg",
+                "sn",
+                "su",
+                "sw",
+                "ss",
+                "ts",
+                "tn",
+                "xh",
+                "zu",
+                "bn",
+                "da",
+                "nl",
+                "fi",
+                "de",
+                "el",
+                "he",
+                "it",
+                "no",
+                "pt",
+                "es",
+                "sv",
+                "tr",
+                "vi",
+                "zh_cn",
+                "zh_tw",
+                "ja",
+                "ko",
+                "be",
+                "bg",
+                "mk",
+                "mn",
+                "ru",
+                "sr",
+                "uk",
+                "hi",
+                "mr",
+                "ne",
+                "sa",
+                "ta",
+                "te",
+                "th",
+                "en_hw",
+                "de_hw"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "DocExtFieldValue": {
+      "type": "object",
+      "title": "DocExtFieldValue",
+      "required": [
+        "passport_number",
+        "nationality",
+        "given_name",
+        "surname",
+        "date_of_birth"
+      ],
+      "properties": {
+        "passport_number": {
+          "type": "string",
+          "title": "Passport number",
+          "description": "Extracted value for Passport number"
+        },
+        "nationality": {
+          "type": "string",
+          "title": "Nationality",
+          "description": "Extracted value for Nationality"
+        },
+        "given_name": {
+          "type": "string",
+          "title": "Given name",
+          "description": "Extracted value for Given name"
+        },
+        "surname": {
+          "type": "string",
+          "title": "Surname",
+          "description": "Extracted value for Surname"
+        },
+        "date_of_birth": {
+          "type": "string",
+          "title": "Date of birth",
+          "description": "Extracted value for Date of birth"
+        }
+      }
+    },
+    "account_details": {
+      "type": "object",
+      "title": "account_details",
+      "description": "Check the details extracted from your passport and complete the form.",
+      "properties": {}
+    },
+    "generate_confirmation_input": {
+      "type": "object",
+      "title": "generate_confirmation_input",
+      "required": [
+        "first_name",
+        "last_name",
+        "account_type",
+        "phone_number"
+      ],
+      "properties": {
+        "first_name": {
+          "type": "string",
+          "title": "First Name",
+          "description": "Customer first name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name",
+          "description": "Customer last name"
+        },
+        "account_type": {
+          "type": "string",
+          "title": "Account Type",
+          "description": "Requested account type (Current or Saving)"
+        },
+        "phone_number": {
+          "type": "string",
+          "title": "Phone Number",
+          "description": "Customer contact phone number"
+        }
+      }
+    },
+    "ConfirmationOutput": {
+      "type": "object",
+      "title": "ConfirmationOutput",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "Message",
+          "description": "The confirmation message for the customer"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "source_kind": "adk/python",
+    "compiled_on": "2026-10-10T00:46:54.526669+00:00"
+  },
+  "output_map": {
+    "spec": {
+      "maps": [
+        {
+          "target_variable": "flow.output.confirmation_message",
+          "value_expression": "flow.private.confirmation_message",
+          "has_no_value": false,
+          "default_value": null,
+          "metadata": {
+            "assignmentType": "pyExpression"
+          }
+        }
+      ]
+    }
+  }
+}

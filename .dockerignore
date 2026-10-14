@@ -1,0 +1,12 @@
+# Build context of repos/backend/Dockerfile (the repo root).
+**/.env
+**/.env.*
+!**/.env.example
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/node_modules
+.git
+repos/backend/db
+repos/backend/certs

@@ -1,0 +1,10 @@
+spec_version: v1
+kind: knowledge_base
+name: pepsico_earnings_kb
+description: >-
+  These documents include PepsiCo's press releases and earnings call transcripts from different years, providing both the official financial results and the accompanying management commentary for multi-period analysis.
+documents:
+  - ../../../data/earnings/pepsico/pepsico-q2-2025-press-release.pdf
+  - ../../../data/earnings/pepsico/pepsico-q2-2025-remarks.pdf
+  - ../../../data/earnings/pepsico/pepsico-q2-2020-press-release.pdf
+  - ../../../data/earnings/pepsico/pepsico-q2-2020-remarks.pdf

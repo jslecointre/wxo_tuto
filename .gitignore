@@ -1,0 +1,61 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+.bob/
+*.backup
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# mcp_servers/test_*.py output
+mcp_servers/output/
+
+# Activity log SQLite file
+repos/backend/db/*.db
+# Chroma index
+repos/backend/db/vdb/
+# App DB backups / exports
+repos/backend/db/backups/
+
+# Workflow diagram rendered at startup
+/images/
+
+# Terraform state and generated vars (contain secrets)
+deploy/terraform/**/.terraform/
+deploy/terraform/**/terraform.tfstate
+deploy/terraform/**/terraform.tfstate.backup
+deploy/terraform/**/terraform.tfvars
+deploy/terraform/**/*.tfplan
+deploy/terraform/**/crash.log
+
+# Provisioning state and exports
+repos/provisioning/output/
+
+# Database CA certificates
+repos/backend/certs/*
+!repos/backend/certs/README.md
+
+# Planning / specification docs (local only)
+specification.md
+specification-stage1-presentation.md
+specification-stage2-improvement.md
+architecture-and-plan.md
+persistence.md
+
+# Orchestrate evaluation results (make wxo-eval)
+repos/wxo/eval/output/
+
+# Third-party documents downloaded for the tutorial (make earnings-docs)
+data_bkp/
+
+# MkDocs build output and plugin cache
+site/
+.cache/

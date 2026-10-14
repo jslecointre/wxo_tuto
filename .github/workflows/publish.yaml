@@ -1,0 +1,96 @@
+name: Publish website
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'mkdocs.ya?ml'
+      - '.github/workflows/publish.ya?ml' # This workflow
+  workflow_dispatch:
+
+env:
+  LC_ALL: en_US.UTF-8
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      pages: read  # actions/configure-pages reads the Pages site settings
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Harden Runner"
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            files.pythonhosted.org:443
+            fonts.google.com:443
+            fonts.gstatic.com:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            raw.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
+            releases.astral.sh:443
+
+      - name: 'Checkout'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 'Setup Pages'
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: 'Setup Python'
+        uses: ./.github/actions/python_setup
+        with:
+          python-version: 3.12
+          enable-cache: false
+
+      - name: 'Build website'
+        run: |
+          uvx --with 'mkdocs-macros-plugin' --with 'mkdocs-material[imaging]' -- mkdocs build --strict
+
+      - name: 'Upload artifact'
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: 'site/' # mkdocs default site_dir
+
+  publish:
+    needs: build
+    if: ${{ github.event_name != 'pull_request' }}
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Harden Runner"
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: block
+          allowed-endpoints: |
+            api.github.com:443
+
+      - name: 'Deploy to GitHub Pages'
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

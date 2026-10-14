@@ -1,0 +1,137 @@
+# Project information
+site_name: "Bien démarrer avec watsonx Orchestrate"
+site_author: IBM
+site_url: https://jslecointre.github.io/wxo_tuto/
+
+# Repository
+repo_name: wxo_tuto
+repo_url: https://github.com/jslecointre/wxo_tuto
+edit_uri: edit/main/docs
+
+# Navigation
+nav:
+  - Accueil:
+    - À propos du tutoriel: README.md
+  - Tutoriel:
+    - Bien démarrer: getting-started/README.md
+    - 1. Introduction à watsonx Orchestrate: part-01-introduction/README.md
+    - 2. Agents de domaine prédéfinis: part-02-prebuilt-domain-agents/README.md
+    - 3. Développer des agents sans code: part-03-no-code-agents/README.md
+    - 4. Créer des workflows agentiques sans code: part-04-agentic-workflows/README.md
+    - 5. Développer des agents avec l'ADK:
+      - 5.1 Hello World avec l'ADK: part-05-adk/README.md
+      - 5.2 Importer le système Earning Report Analyst: part-05-adk/earning-report-analyst.md
+      - 5.3 Construire des agents avec Bob: part-05-adk/bob.md
+      - 5.4 Le workflow Account Opening avec l'ADK: part-05-adk/account-opening-workflow.md
+    - Synthèse: summary.md
+  - Références: references.md
+
+# Open content links in a new tab
+extra_javascript:
+  - javascripts/new-tab.js
+
+## DO NOT CHANGE BELOW THIS LINE
+
+# Copyright
+copyright: Copyright &copy; 2026- IBM FDE
+
+# Theme
+theme:
+  name: material
+  language: fr
+  font:
+    text: IBM Plex Sans
+    code: IBM Plex Mono
+  icon:
+    logo: material/library
+  logo: images/ibm-blue-background.png
+  favicon: images/ibm-blue-background.png
+  features:
+    - navigation.tabs
+    - navigation.footer
+    #- navigation.instant
+    - content.code.copy
+  palette:
+    scheme: default
+    primary: blue
+    accent: blue
+
+extra_css:
+  - "data:text/css,.md-header__button.md-logo img,.md-header__button.md-logo svg{height:2.5rem;width:auto;}.md-header__title{font-size:1.2rem;font-weight:500;}"
+
+# Plugins
+plugins:
+  - search
+  - social:
+      enabled: !ENV [CI, false] # social cards need Cairo; GitHub Actions sets CI=true
+  - macros:
+      on_undefined: strict
+
+# Customization
+extra:
+  generator: false # hide "Made with Material for MkDocs"
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ibm
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/ibmdeveloper
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/ibm/
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/user/developerworks
+    - icon: fontawesome/brands/dev
+      link: https://dev.to/ibmdeveloper
+  repo_branch: main
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.blocks.admonition:
+      types:
+        - note
+        - abstract
+        - info
+        - tip
+        - success
+        - question
+        - warning
+        - failure
+        - danger
+        - bug
+        - example
+        - quote
+  - pymdownx.blocks.caption:
+  - pymdownx.blocks.tab:
+      alternate_style: true
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde

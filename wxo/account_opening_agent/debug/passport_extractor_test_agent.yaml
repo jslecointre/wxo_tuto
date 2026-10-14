@@ -1,0 +1,14 @@
+spec_version: v1
+kind: native
+name: passport_extractor_test_agent
+display_name: Passport Extractor Test
+description: Debug agent that runs a minimal document extractor on an uploaded passport image.
+instructions: |-
+  - If the user says "classic", call passport_extractor_test_classic. If the user says "layout", call passport_extractor_test_layout.
+  - Call the tool once only. If it fails, report the error and do not retry.
+  - Show every extracted field exactly as returned.
+llm: groq/openai/gpt-oss-120b
+style: react_core
+tools:
+  - passport_extractor_test_classic
+  - passport_extractor_test_layout

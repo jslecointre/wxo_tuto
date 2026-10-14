@@ -1,0 +1,10 @@
+spec_version: v1
+kind: knowledge_base
+name: coca_cola_earnings_kb
+description: >-
+  These documents include Coca-Cola's press releases and earnings call transcripts from different years, providing both the official financial results and the accompanying management commentary for multi-period analysis.
+documents:
+  - ../../../data/earnings/coca-cola/coca-cola-q2-2025-earnings-release.pdf
+  - ../../../data/earnings/coca-cola/coca-cola-q2-2025-transcript.pdf
+  - ../../../data/earnings/coca-cola/coca-cola-q2-2020-earnings-release.pdf
+  - ../../../data/earnings/coca-cola/coca-cola-q2-2020-transcript.pdf

@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "orchestrate-adk": {
+      "command": "${UVX_PATH}",
+      "args": [
+        "--with",
+        "ibm-watsonx-orchestrate==2.14.0",
+        "--with",
+        "fastmcp==2.14.5",
+        "ibm-watsonx-orchestrate-mcp-server==2.15.0"
+      ],
+      "env": {
+        "WXO_MCP_WORKING_DIRECTORY": "${WXO_SCRIPT_DIR}",
+        "WXO_APIKEY": "${WXO_API_KEY}",
+        "WXO_API_URL": "${WXO_URL}"
+      },
+      "timeout": 3600000,
+      "alwaysAllow": [
+        "chat_with_agent",
+        "export_agent",
+        "get_tool_template",
+        "list_tools",
+        "list_toolkits",
+        "list_knowledge_bases",
+        "check_knowledge_base_status",
+        "list_connections",
+        "list_voice_configs",
+        "list_models",
+        "check_version",
+        "list_agents",
+        "import_agent",
+        "remove_agent",
+        "import_tool",
+        "export_tool",
+        "create_tool"
+      ],
+      "disabled": false
+    },
+    "watsonx-orchestrate-adk-docs": {
+      "url": "https://developer.watson-orchestrate.ibm.com/mcp",
+      "disabled": false
+    }
+  }
+}
